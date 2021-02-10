@@ -6,8 +6,8 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 async function handleRequest(_request) {
-  if (!CLOUDFLARE_KEY) {
-    throw new Error('CLOUDFLARE_KEY secret not provided')
+  if (!CASTLE_CLOUDFLARE_KEY) {
+    throw new Error('CASTLE_CLOUDFLARE_KEY secret not provided')
   }
 
   return new Response('Hello worker!', {
