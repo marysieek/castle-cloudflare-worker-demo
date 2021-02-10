@@ -1,0 +1,3 @@
+name = "castle-cloudflare-worker-demo"
+type = "javascript"
+workers_dev = true

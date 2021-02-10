@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "castle-cloudflare-worker-demo",
+  "version": "1.0.0",
+  "description": "Castle Cloudflare Worker Demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "castle.io",
+  "license": "MIT"
+}
