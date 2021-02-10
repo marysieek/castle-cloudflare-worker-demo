@@ -1,5 +1,4 @@
 # Castle Cloudflare Worker Demo
-Cloudflare Worker Demo
 
 ## Installation
 
