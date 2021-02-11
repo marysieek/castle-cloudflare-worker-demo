@@ -40,8 +40,8 @@ function matchRequest(request) {
  * @param {Request} request
  */
 async function handleRequest(request) {
-  if (!CASTLE_CLOUDFLARE_KEY) {
-    throw new Error('CASTLE_CLOUDFLARE_KEY secret not provided');
+  if (!CASTLE_API_SECRET) {
+    throw new Error('CASTLE_API_SECRET secret not provided');
   }
 
   matchRequest(request);

@@ -18,7 +18,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           secrets: |
-            CASTLE_CLOUDFLARE_KEY
+            CASTLE_API_SECRET
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CASTLE_CLOUDFLARE_KEY: ${{ secrets.CASTLE_CLOUDFLARE_KEY }}
+          CASTLE_API_SECRET: ${{ secrets.CASTLE_API_SECRET }}
