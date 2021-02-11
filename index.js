@@ -15,11 +15,7 @@ function generateDefaultRequestHeaders() {
 /**
  * Return Castle auth request body
  */
-function generateRequestBody({
-  event,
-  context,
-  created_at,
-}) {
+function generateRequestBody({ event, context, created_at }) {
   return JSON.stringify({
     sent_at: new Date().toISOString(),
     created_at,
@@ -35,17 +31,28 @@ function generateRequestBody({
 }
 
 /**
+ * Return the castle_token fetched from form data
+ * @param {Request} request
+ */
+async function castleTokenFromFormData(request) {
+  const clonedRequest = await request.clone();
+  const formData = await clonedRequest.formData();
+  if (formData) {
+    return formData.get('castle_token');
+  }
+}
+
+/**
  * Return the result of the POST /authenticate call to Castle API
  * @param {Request} request
  */
 async function authenticate(request) {
+  const clientId = await castleTokenFromFormData(request);
+
   const params = {
-    /*
-    List of recognized events available under:
-    https://docs.castle.io/api_reference/#list-of-recognized-events
-    */
-    event: '$login.attempted',
+    event: '$registration.attempted',
     context: {
+      client_id: clientId || false,
       ip: request.headers.get('CF-Connecting-IP'),
       locale: request.headers.get('Locale'),
       user_agent: request.headers.get('User-Agent'),
@@ -69,12 +76,7 @@ async function authenticate(request) {
 
 const routes = [
   {
-    pathname: '/',
-    method: 'GET',
-    handler: authenticate,
-  },
-  {
-    pathname: '/users/sign_in',
+    pathname: '/users/sign_up',
     method: 'POST',
     handler: authenticate,
   },
@@ -84,7 +86,7 @@ const routes = [
  * Return matched action or undefined
  * @param {Request} request
  */
-async function matchRequest(request) {
+async function preProcessRequest(request) {
   const requestUrl = new URL(request.url);
   for (const route of routes) {
     if (
@@ -105,9 +107,11 @@ async function handleRequest(request) {
     throw new Error('CASTLE_API_SECRET secret not provided');
   }
 
-  await matchRequest(request);
+  const result = await preProcessRequest(request);
 
-  return new Response('Hello worker!', {
-    headers: { 'content-type': 'text/plain' },
-  });
+  if (result && result.risk > 0.9) {
+    return new Response('Blocked!', { status: 403 });
+  }
+
+  return fetch(request);
 }
