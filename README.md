@@ -6,8 +6,6 @@
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/castle/cloudflare-worker-demo)
 
-2. Upload Cloudflare secret, available in [Castle Dashboard](https://dashboard.castle.io/settings/general) as `CASTLE_CLOUDFLARE_KEY`.
+2. Add `CF_ACCOUNT_ID` and `CF_API_TOKEN` to Github actions secrets.
 
-```bash
-wrangler secret put CASTLE_CLOUDFLARE_KEY --env castle-cloudflare-worker-demo
-```
+3. Add Cloudflare secret, available in [Castle Dashboard](https://dashboard.castle.io/settings/general) as `CASTLE_CLOUDFLARE_KEY` to Github actions secrets.
