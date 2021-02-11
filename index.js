@@ -2,25 +2,12 @@ addEventListener('fetch', (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
-/**
- * Return Castle auth request headers
- */
-function generateDefaultRequestHeaders() {
-  return {
-    Authorization: `Basic ${btoa(`:${CASTLE_API_SECRET}`)}`,
-    'Content-Type': 'application/json',
-  };
-}
+const CASTLE_AUTHENTICATE_API_URL = `https://api.castle.io/v1/authenticate`;
 
-/**
- * Return Castle auth request body
- */
-function generateRequestBody({ event, context }) {
-  return JSON.stringify({
-    event,
-    context,
-  });
-}
+const CASTLE_AUTH_HEADERS = {
+  Authorization: `Basic ${btoa(`:${CASTLE_API_SECRET}`)}`,
+  'Content-Type': 'application/json',
+};
 
 /**
  * Return the castle_token fetched from form data
@@ -41,7 +28,7 @@ async function castleTokenFromFormData(request) {
 async function authenticate(request) {
   const clientId = await castleTokenFromFormData(request);
 
-  const params = {
+  const requestBody = JSON.stringify({
     event: '$registration',
     context: {
       client_id: clientId || false,
@@ -49,17 +36,16 @@ async function authenticate(request) {
       locale: request.headers.get('Locale'),
       user_agent: request.headers.get('User-Agent'),
     },
-  };
+  });
 
-  const castleAuthenticateRequestUrl = `https://api.castle.io/v1/authenticate`;
   const requestOptions = {
     method: 'POST',
-    headers: generateDefaultRequestHeaders(),
-    body: generateRequestBody(params),
+    headers: CASTLE_AUTH_HEADERS,
+    body: requestBody,
   };
   let response;
   try {
-    response = await fetch(castleAuthenticateRequestUrl, requestOptions);
+    response = await fetch(CASTLE_AUTHENTICATE_API_URL, requestOptions);
   } catch (err) {
     console.log(err);
   }
