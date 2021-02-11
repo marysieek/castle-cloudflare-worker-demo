@@ -1,9 +1,4 @@
-addEventListener('fetch', (event) => {
-  event.respondWith(handleRequest(event.request));
-});
-
 const CASTLE_AUTHENTICATE_API_URL = `https://api.castle.io/v1/authenticate`;
-
 const CASTLE_AUTH_HEADERS = {
   Authorization: `Basic ${btoa(`:${CASTLE_API_SECRET}`)}`,
   'Content-Type': 'application/json',
@@ -93,3 +88,7 @@ async function handleRequest(request) {
 
   return fetch(request);
 }
+
+addEventListener('fetch', (event) => {
+  event.respondWith(handleRequest(event.request));
+});
