@@ -2,8 +2,76 @@ addEventListener('fetch', (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
-function authenticate(_arg) {
-  console.log('executed');
+/**
+ * Return Castle auth request headers
+ */
+function generateDefaultRequestHeaders() {
+  return {
+    Authorization: `Basic ${btoa(`:${CASTLE_API_SECRET}`)}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+async function generateRequestBody({
+  event,
+  user_id,
+  user_traits,
+  properties,
+  context,
+  created_at,
+  device_token,
+}) {
+  return JSON.stringify({
+    sent_at: new Date().toISOString(),
+    created_at,
+    event,
+    user_id,
+    user_traits,
+    properties,
+    device_token,
+    context: {
+      ...context,
+      client_id: context.client_id || false,
+      library: {
+        name: 'castle-cloudflare-worker-demo',
+        version: '1.0.0',
+      },
+    },
+  });
+}
+
+/**
+ * Return the result of the POST /authenticate call to Castle API
+ * @param {Request} request
+ */
+async function authenticate(request) {
+  const params = {
+    // List of recognized events available under: https://docs.castle.io/api_reference/#list-of-recognized-events
+    event: '$login.succeeded',
+    user_id: 'user_id',
+    user_traits: {
+      email: 'test@example.com',
+    },
+    context: {
+      ip: request.headers.get('CF-Connecting-IP'),
+      locale: request.headers.get('Locale'),
+      user_agent: request.headers.get('User-Agent'),
+    },
+  };
+
+  const castleAuthenticateRequestUrl = `https://api.castle.io/v1/authenticate`;
+  const requestOptions = {
+    method: 'POST',
+    headers: generateDefaultRequestHeaders(),
+    body: await generateRequestBody(params),
+  };
+  let response;
+  try {
+    response = await fetch(castleAuthenticateRequestUrl, requestOptions);
+  } catch (err) {
+    console.log(err);
+  }
+  return response;
 }
 
 const routes = [
@@ -23,14 +91,14 @@ const routes = [
  * Return matched action or undefined
  * @param {Request} request
  */
-function matchRequest(request) {
+async function matchRequest(request) {
   const requestUrl = new URL(request.url);
   for (const route of routes) {
     if (
       requestUrl.pathname === route.pathname &&
       request.method === route.method
     ) {
-      return route.handler(request);
+      return await route.handler(request);
     }
   }
 }
@@ -44,7 +112,7 @@ async function handleRequest(request) {
     throw new Error('CASTLE_API_SECRET secret not provided');
   }
 
-  matchRequest(request);
+  await matchRequest(request);
 
   return new Response('Hello worker!', {
     headers: { 'content-type': 'text/plain' },
