@@ -1,19 +1,55 @@
-addEventListener('fetch', (event) => {
-  event.respondWith(handleRequest(event.request));
-});
+const CASTLE_AUTHENTICATE_API_URL = `https://api.castle.io/v1/authenticate`;
+const CASTLE_AUTH_HEADERS = {
+  Authorization: `Basic ${btoa(`:${CASTLE_API_SECRET}`)}`,
+  'Content-Type': 'application/json',
+};
 
-function authenticate(_arg) {
-  console.log('executed');
+/**
+ * Return the castle_token fetched from form data
+ * @param {Request} request
+ */
+async function getCastleTokenFromRequest(request) {
+  const clonedRequest = await request.clone();
+  const formData = await clonedRequest.formData();
+  if (formData) {
+    return formData.get('castle_token');
+  }
+}
+
+/**
+ * Return the result of the POST /authenticate call to Castle API
+ * @param {Request} request
+ */
+async function authenticate(request) {
+  const clientId = await getCastleTokenFromRequest(request);
+
+  const requestBody = JSON.stringify({
+    event: '$registration',
+    context: {
+      client_id: clientId || false,
+      ip: request.headers.get('CF-Connecting-IP'),
+      locale: request.headers.get('Locale'),
+      user_agent: request.headers.get('User-Agent'),
+    },
+  });
+
+  const requestOptions = {
+    method: 'POST',
+    headers: CASTLE_AUTH_HEADERS,
+    body: requestBody,
+  };
+  let response;
+  try {
+    response = await fetch(CASTLE_AUTHENTICATE_API_URL, requestOptions);
+  } catch (err) {
+    console.log(err);
+  }
+  return response;
 }
 
 const routes = [
   {
-    pathname: '/',
-    method: 'GET',
-    handler: authenticate,
-  },
-  {
-    pathname: '/users/sign_in',
+    pathname: '/users/sign_up',
     method: 'POST',
     handler: authenticate,
   },
@@ -23,7 +59,7 @@ const routes = [
  * Return matched action or undefined
  * @param {Request} request
  */
-function matchRequest(request) {
+async function processRequest(request) {
   const requestUrl = new URL(request.url);
   for (const route of routes) {
     if (
@@ -44,9 +80,15 @@ async function handleRequest(request) {
     throw new Error('CASTLE_API_SECRET secret not provided');
   }
 
-  matchRequest(request);
+  const result = await processRequest(request);
 
-  return new Response('Hello worker!', {
-    headers: { 'content-type': 'text/plain' },
-  });
+  if (result && result.risk > 0.9) {
+    return new Response('Blocked!', { status: 403 });
+  }
+
+  return fetch(request);
 }
+
+addEventListener('fetch', (event) => {
+  event.respondWith(handleRequest(event.request));
+});
