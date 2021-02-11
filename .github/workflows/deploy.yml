@@ -20,4 +20,5 @@ jobs:
           secrets: |
             CASTLE_CLOUDFLARE_KEY
         env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CASTLE_CLOUDFLARE_KEY: ${{ secrets.CASTLE_CLOUDFLARE_KEY }}
