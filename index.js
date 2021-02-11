@@ -15,18 +15,10 @@ function generateDefaultRequestHeaders() {
 /**
  * Return Castle auth request body
  */
-function generateRequestBody({ event, context, created_at }) {
+function generateRequestBody({ event, context }) {
   return JSON.stringify({
-    sent_at: new Date().toISOString(),
-    created_at,
     event,
-    context: {
-      ...context,
-      library: {
-        name: 'castle-cloudflare-worker-demo',
-        version: '1.0.0',
-      },
-    },
+    context,
   });
 }
 
@@ -50,7 +42,7 @@ async function authenticate(request) {
   const clientId = await castleTokenFromFormData(request);
 
   const params = {
-    event: '$registration.attempted',
+    event: '$registration',
     context: {
       client_id: clientId || false,
       ip: request.headers.get('CF-Connecting-IP'),
