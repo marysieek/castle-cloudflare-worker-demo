@@ -13,7 +13,7 @@ const CASTLE_AUTH_HEADERS = {
  * Return the castle_token fetched from form data
  * @param {Request} request
  */
-async function castleTokenFromFormData(request) {
+async function getCastleTokenFromRequest(request) {
   const clonedRequest = await request.clone();
   const formData = await clonedRequest.formData();
   if (formData) {
@@ -26,7 +26,7 @@ async function castleTokenFromFormData(request) {
  * @param {Request} request
  */
 async function authenticate(request) {
-  const clientId = await castleTokenFromFormData(request);
+  const clientId = await getCastleTokenFromRequest(request);
 
   const requestBody = JSON.stringify({
     event: '$registration',
@@ -64,7 +64,7 @@ const routes = [
  * Return matched action or undefined
  * @param {Request} request
  */
-async function preProcessRequest(request) {
+async function processRequest(request) {
   const requestUrl = new URL(request.url);
   for (const route of routes) {
     if (
@@ -85,7 +85,7 @@ async function handleRequest(request) {
     throw new Error('CASTLE_API_SECRET secret not provided');
   }
 
-  const result = await preProcessRequest(request);
+  const result = await processRequest(request);
 
   if (result && result.risk > 0.9) {
     return new Response('Blocked!', { status: 403 });
