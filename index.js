@@ -93,7 +93,7 @@ async function preProcessRequest(request) {
       requestUrl.pathname === route.pathname &&
       request.method === route.method
     ) {
-      return await route.handler(request);
+      return route.handler(request);
     }
   }
 }
