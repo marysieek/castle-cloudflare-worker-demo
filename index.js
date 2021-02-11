@@ -12,14 +12,16 @@ function generateDefaultRequestHeaders() {
   };
 }
 
-async function generateRequestBody({
+/**
+ * Return Castle auth request body
+ */
+function generateRequestBody({
   event,
   user_id,
   user_traits,
   properties,
   context,
   created_at,
-  device_token,
 }) {
   return JSON.stringify({
     sent_at: new Date().toISOString(),
@@ -28,7 +30,6 @@ async function generateRequestBody({
     user_id,
     user_traits,
     properties,
-    device_token,
     context: {
       ...context,
       client_id: context.client_id || false,
@@ -46,12 +47,22 @@ async function generateRequestBody({
  */
 async function authenticate(request) {
   const params = {
-    // List of recognized events available under: https://docs.castle.io/api_reference/#list-of-recognized-events
+    /*
+    List of recognized events available under:
+    https://docs.castle.io/api_reference/#list-of-recognized-events
+    */
     event: '$login.succeeded',
-    user_id: 'user_id',
-    user_traits: {
-      email: 'test@example.com',
-    },
+    /*
+    Unique idenfifier of the logged in user as a string,
+    could be also fetched from remaining request data
+    */
+    user_id: request.headers.get('X-Castle-User-Id'),
+    /*
+    Any user traits or properties for the logged in user as a JSON encoded object,
+    could be also fetched from remaining request data
+    */
+    user_traits: JSON.parse(request.headers.get('X-Castle-User-Traits')),
+    properties: JSON.parse(request.headers.get('X-Castle-Properties')),
     context: {
       ip: request.headers.get('CF-Connecting-IP'),
       locale: request.headers.get('Locale'),
@@ -63,7 +74,7 @@ async function authenticate(request) {
   const requestOptions = {
     method: 'POST',
     headers: generateDefaultRequestHeaders(),
-    body: await generateRequestBody(params),
+    body: generateRequestBody(params),
   };
   let response;
   try {
