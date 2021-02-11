@@ -17,9 +17,6 @@ function generateDefaultRequestHeaders() {
  */
 function generateRequestBody({
   event,
-  user_id,
-  user_traits,
-  properties,
   context,
   created_at,
 }) {
@@ -27,12 +24,8 @@ function generateRequestBody({
     sent_at: new Date().toISOString(),
     created_at,
     event,
-    user_id,
-    user_traits,
-    properties,
     context: {
       ...context,
-      client_id: context.client_id || false,
       library: {
         name: 'castle-cloudflare-worker-demo',
         version: '1.0.0',
@@ -51,18 +44,7 @@ async function authenticate(request) {
     List of recognized events available under:
     https://docs.castle.io/api_reference/#list-of-recognized-events
     */
-    event: '$login.succeeded',
-    /*
-    Unique idenfifier of the logged in user as a string,
-    could be also fetched from remaining request data
-    */
-    user_id: request.headers.get('X-Castle-User-Id'),
-    /*
-    Any user traits or properties for the logged in user as a JSON encoded object,
-    could be also fetched from remaining request data
-    */
-    user_traits: JSON.parse(request.headers.get('X-Castle-User-Traits')),
-    properties: JSON.parse(request.headers.get('X-Castle-Properties')),
+    event: '$login.attempted',
     context: {
       ip: request.headers.get('CF-Connecting-IP'),
       locale: request.headers.get('Locale'),
