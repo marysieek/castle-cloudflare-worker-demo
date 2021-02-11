@@ -23,7 +23,7 @@ const routes = [
  * Return matched action or undefined
  * @param {Request} request
  */
-function matchRequestPath(request) {
+function matchRequest(request) {
   const requestUrl = new URL(request.url);
   for (const route of routes) {
     if (
@@ -44,7 +44,7 @@ async function handleRequest(request) {
     throw new Error('CASTLE_CLOUDFLARE_KEY secret not provided');
   }
 
-  matchRequestPath(request);
+  matchRequest(request);
 
   return new Response('Hello worker!', {
     headers: { 'content-type': 'text/plain' },
