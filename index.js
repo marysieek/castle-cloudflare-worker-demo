@@ -9,8 +9,7 @@ const CASTLE_AUTH_HEADERS = {
  * @param {Request} request
  */
 async function getCastleTokenFromRequest(request) {
-  const clonedRequest = await request.clone();
-  const formData = await clonedRequest.formData();
+  const formData = await request.formData();
   if (formData) {
     return formData.get('castle_token');
   }
@@ -20,15 +19,14 @@ async function getCastleTokenFromRequest(request) {
  * Return the result of the POST /authenticate call to Castle API
  * @param {Request} request
  */
-async function authenticate(request) {
+async function authenticate(event, request) {
   const clientId = await getCastleTokenFromRequest(request);
 
   const requestBody = JSON.stringify({
-    event: '$registration',
+    event,
     context: {
-      client_id: clientId || false,
+      client_id: clientId,
       ip: request.headers.get('CF-Connecting-IP'),
-      locale: request.headers.get('Locale'),
       user_agent: request.headers.get('User-Agent'),
     },
   });
@@ -49,9 +47,10 @@ async function authenticate(request) {
 
 const routes = [
   {
-    pathname: '/users/sign_up',
-    method: 'POST',
+    event: '$registration',
     handler: authenticate,
+    method: 'POST',
+    pathname: '/users/sign_up',
   },
 ];
 
@@ -66,7 +65,7 @@ async function processRequest(request) {
       requestUrl.pathname === route.pathname &&
       request.method === route.method
     ) {
-      return route.handler(request);
+      return route.handler(route.event, request);
     }
   }
 }
