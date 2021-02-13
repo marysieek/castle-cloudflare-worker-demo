@@ -9,7 +9,8 @@ const CASTLE_AUTH_HEADERS = {
  * @param {Request} request
  */
 async function getCastleTokenFromRequest(request) {
-  const formData = await request.formData();
+  const clonedRequest = await request.clone();
+  const formData = await clonedRequest.formData();
   if (formData) {
     return formData.get('castle_token');
   }
