@@ -1,4 +1,15 @@
-# Castle Cloudflare Worker Demo
+
+<div align="center">
+  <img align="center" alt="Castle logo" src='./assets/castle-logo.svg' width='150'/>
+</div>
+<div align="center">
+  <h1>Castle Cloudflare Worker Demo</h1>
+</div>
+<div align="center">
+  <image src="https://img.shields.io/github/workflow/status/castle/cloudflare-worker-demo/Build"/>
+  <image src="https://img.shields.io/github/package-json/v/castle/castle-cloudflare-worker-demo"/>
+  <image src="https://img.shields.io/github/license/castle/castle-cloudflare-worker-demo"/>
+</div>
 
 ## Installation
 
