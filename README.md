@@ -1,4 +1,3 @@
-
 <div align="center">
   <img align="center" alt="Castle logo" src='./assets/castle-logo.svg' width='150'/>
 </div>
