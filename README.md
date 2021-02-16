@@ -13,6 +13,7 @@
 ## Installation
 
 1. Press the `Deploy with Workers` button and follow the instructions:
+
   [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/castle/castle-cloudflare-worker-demo)
 
 2. Check if `castle-cloudflare-worker-demo` repository is forked to your organization. At this step, Github build should fail
